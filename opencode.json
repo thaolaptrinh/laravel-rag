@@ -1,0 +1,26 @@
+{
+  "$schema": "https://opencode.ai/schemas/v1",
+  "name": "laravel-rag",
+  "version": "0.1.0",
+  "description": "Provider-agnostic RAG (Retrieval-Augmented Generation) package for Laravel",
+  "skills": [
+    "rag-core",
+    "iterative-testing"
+  ],
+  "commands": [
+    "phase-1-foundation",
+    "phase-2-ingestion",
+    "phase-3-query",
+    "validate-architecture",
+    "analyse",
+    "lint"
+  ],
+  "agents": {
+    "primary": "laravel-expert",
+    "subagents": [
+      "rag-architect",
+      "pipeline-validator",
+      "test-writer"
+    ]
+  }
+}
