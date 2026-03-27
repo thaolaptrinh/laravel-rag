@@ -9,7 +9,10 @@ use Thaolaptrinh\Rag\Services\QueryPipeline;
 
 class QueryCommand extends Command
 {
-    protected $signature = 'rag:query {query : The question to ask}';
+    protected $signature = 'rag:query
+        {query : The question to ask}
+        {--topK=5 : Number of chunks to retrieve}
+    ';
 
     protected $description = 'Query the RAG system';
 
@@ -22,12 +25,19 @@ class QueryCommand extends Command
     public function handle(): int
     {
         $query = $this->argument('query');
+        $topK = (int) $this->option('topK');
+
+        if ($topK < 1) {
+            $this->error('--topK must be at least 1');
+
+            return self::FAILURE;
+        }
 
         $this->info("Query: {$query}");
         $this->newLine();
 
         try {
-            $result = $this->pipeline->query($query);
+            $result = $this->pipeline->query($query, $topK);
 
             $this->info('Answer:');
             $this->line($result['answer']);
