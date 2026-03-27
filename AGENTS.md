@@ -152,6 +152,59 @@ Follow the 4-phase implementation order:
 4. **Before commit**: Ensure all validation steps pass
 5. **Before PR**: Review architecture rules for compliance
 
+## Git Conventions
+
+### Conventional Commits (REQUIRED)
+Format: `type(scope): description`
+
+| Type | When to use |
+|------|-------------|
+| `feat` | New feature |
+| `fix` | Bug fix |
+| `refactor` | Code change that is not a feature or bug fix |
+| `test` | Adding or updating tests |
+| `docs` | Documentation changes |
+| `chore` | Build process, dependencies, config |
+| `perf` | Performance improvement |
+
+Scopes: `contracts`, `drivers`, `services`, `commands`, `tests`, `config`
+
+Examples:
+- `feat(drivers): add OpenAI embedding driver with batch support`
+- `fix(services): handle unique constraint violation in storeMany`
+- `test(ingestion): add end-to-end pipeline integration test`
+- `refactor(retriever): extract embedding logic to EmbeddingDriver`
+
+### Commit Rules
+- Small, focused commits (one logical change per commit)
+- Always run `composer analyse` before committing
+- Always run `composer test` before pushing
+- Never commit `.env`, `vendor/`, `build/`
+
+## OpenCode Commands Reference
+
+| Command | Purpose |
+|---------|---------|
+| `/analyse` | Run PHPStan and fix errors |
+| `/lint` | Format code with Laravel Pint |
+| `/test` | Run Pest test suite |
+| `/test-coverage` | Run tests with coverage report |
+| `/review` | Review changes before committing |
+| `/commit` | Suggest a conventional commit message |
+| `/refactor` | Run Rector auto-refactor (dry-run first) |
+| `/debug <issue>` | Debug a pipeline issue systematically |
+| `/phase-1-foundation` | Build Phase 1 |
+| `/phase-2-ingestion` | Build Phase 2 |
+| `/phase-3-query` | Build Phase 3 |
+| `/validate-architecture` | Validate full architecture |
+
+## Response Preferences
+
+- **Code**: Always provide full implementation, never truncate
+- **Errors**: Explain root cause before proposing a fix
+- **PHPStan**: Never suggest `@phpstan-ignore` — fix the actual problem
+- **Brevity**: Do not over-explain things that are obvious from the code
+
 ## When in Doubt
 
 - **Question**: Should I add this feature?

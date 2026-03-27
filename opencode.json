@@ -1,26 +1,94 @@
 {
-  "$schema": "https://opencode.ai/schemas/v1",
-  "name": "laravel-rag",
-  "version": "0.1.0",
-  "description": "Provider-agnostic RAG (Retrieval-Augmented Generation) package for Laravel",
-  "skills": [
-    "rag-core",
-    "iterative-testing"
-  ],
-  "commands": [
-    "phase-1-foundation",
-    "phase-2-ingestion",
-    "phase-3-query",
-    "validate-architecture",
-    "analyse",
-    "lint"
-  ],
-  "agents": {
-    "primary": "laravel-expert",
-    "subagents": [
-      "rag-architect",
-      "pipeline-validator",
-      "test-writer"
-    ]
+  "$schema": "https://opencode.ai/config.json",
+  "model": "zai-coding-plan/glm-5-turbo",
+  "small_model": "zai-coding-plan/glm-5-turbo",
+  "default_agent": "laravel-expert",
+  "instructions": ["./AGENTS.md"],
+  "formatter": {
+    "pint": {
+      "command": ["vendor/bin/pint", "$FILE"],
+      "extensions": [".php"]
+    }
+  },
+  "compaction": {
+    "auto": true
+  },
+  "agent": {
+    "build": {
+      "model": "zai-coding-plan/glm-5-turbo"
+    },
+    "plan": {
+      "model": "zai-coding-plan/glm-5-turbo"
+    }
+  },
+  "command": {
+    "analyse": {
+      "description": "Run PHPStan static analysis and fix errors",
+      "agent": "laravel-expert",
+      "template": "Run PHPStan: !`composer analyse 2>&1`. If there are errors, analyze each one and fix immediately. Re-run to confirm clean. Never commit with PHPStan errors."
+    },
+    "lint": {
+      "description": "Format all code with Laravel Pint",
+      "agent": "laravel-expert",
+      "template": "Format code: !`composer format 2>&1`. Then check !`git diff --stat 2>&1` to see which files changed."
+    },
+    "test": {
+      "description": "Run Pest test suite",
+      "agent": "laravel-expert",
+      "template": "Run tests: !`composer test 2>&1`. If there are failures, analyze each one, identify the root cause, and propose a specific fix. Fix one test at a time."
+    },
+    "test-coverage": {
+      "description": "Run tests with coverage report",
+      "agent": "laravel-expert",
+      "template": "Run coverage: !`composer test-coverage 2>&1`. Analyze the report, identify untested code paths, and suggest additional tests for critical areas (Contracts, Services, Drivers)."
+    },
+    "review": {
+      "description": "Review code changes before committing",
+      "agent": "code-reviewer",
+      "subtask": true,
+      "template": "Review all changes: !`git diff HEAD 2>&1`. Check against AGENTS.md: (1) declare(strict_types=1) on every PHP file, (2) explicit return types, (3) no provider code in Services, (4) batch operations used, (5) PHPStan compatible, (6) trace_id in logs. List all issues by severity: Critical / Major / Minor."
+    },
+    "commit": {
+      "description": "Suggest a conventional commit message",
+      "agent": "laravel-expert",
+      "template": "Show staged changes: !`git diff --staged 2>&1`. Suggest a commit message following Conventional Commits (feat/fix/refactor/test/docs/chore). Only suggest — do not commit. Format: `type(scope): description`"
+    },
+    "refactor": {
+      "description": "Run Rector auto-refactor (dry-run first)",
+      "agent": "laravel-expert",
+      "template": "Run Rector dry-run to preview changes: !`composer refactor-dry 2>&1`. Review each proposed change. If all look correct, apply: !`composer refactor 2>&1`. Then validate: !`composer analyse 2>&1` and !`composer test 2>&1` to ensure no regressions."
+    },
+    "ci": {
+      "description": "Run full CI quality suite: test + analyse + review",
+      "agent": "laravel-expert",
+      "template": "Run the full quality suite in order:\n1. Tests: !`composer test 2>&1`\n2. PHPStan: !`composer analyse 2>&1`\n3. Check !`git diff HEAD 2>&1` for any uncommitted quality issues.\nReport a summary: how many tests passed, any PHPStan errors, any architecture violations. The build passes only when all three are clean."
+    },
+    "debug": {
+      "description": "Debug a pipeline issue systematically",
+      "agent": "debugger",
+      "subtask": true,
+      "template": "Debug issue: $ARGUMENTS. Follow the process: reproduce → isolate → inspect logs → hypothesize root cause → verify → report with a specific fix recommendation."
+    },
+    "phase-1-foundation": {
+      "description": "Setup Phase 1 - Core abstractions and ingestion foundation",
+      "agent": "laravel-expert",
+      "template": "Set up Phase 1 of the RAG pipeline: create all core interfaces in src/Contracts/ (DataSource, Chunker, EmbeddingDriver, VectorStore, Retriever, PromptBuilder, LlmDriver), implement TextDataSource and TextChunker, create the rag_chunks migration with pgvector support. Validate with PHPStan after each step."
+    },
+    "phase-2-ingestion": {
+      "description": "Build Phase 2 - Complete ingestion pipeline",
+      "agent": "laravel-expert",
+      "template": "Build Phase 2: implement PgVectorStore with storeMany() batch support, OpenAIEmbeddingDriver with embedBatch(), IngestionPipeline service with structured logging and trace_id, and the rag:ingest Artisan command. Test end-to-end with a real file."
+    },
+    "phase-3-query": {
+      "description": "Build Phase 3 - Query pipeline with LLM generation",
+      "agent": "laravel-expert",
+      "template": "Build Phase 3: implement SimilarityRetriever (accepts string query, handles embedding internally), SimplePromptBuilder with token limits, OpenAILlmDriver, QueryPipeline service, and the rag:query Artisan command. Validate the full query flow end-to-end."
+    },
+    "validate-architecture": {
+      "description": "Validate full architecture and code quality",
+      "agent": "code-reviewer",
+      "subtask": true,
+      "template": "Validate the full architecture: !`grep -r 'OpenAI\\|Pinecone\\|Anthropic' src/Services/ 2>&1 || echo OK`. !`find src -name '*.php' | xargs grep -L 'declare(strict_types=1)' 2>&1`. !`composer analyse 2>&1`. Report: provider lock-in, missing strict_types, PHPStan errors, batch operations, trace IDs."
+    }
   }
 }

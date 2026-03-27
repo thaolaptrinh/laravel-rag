@@ -1,7 +1,7 @@
 ---
 description: RAG system architecture specialist
 mode: subagent
-model: anthropic/claude-sonnet-4-20250514
+model: zai-coding-plan/glm-5-turbo
 permission:
   edit: ask
   bash: ask

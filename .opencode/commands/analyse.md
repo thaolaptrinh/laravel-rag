@@ -1,23 +1,25 @@
 ---
-description: Run PHPStan static analysis
-agent: build
+description: Run PHPStan static analysis and fix all errors
+agent: laravel-expert
+template: Run PHPStan and fix all errors
 ---
 
 Run PHPStan static analysis at level 6:
 
-!`vendor/bin/phpstan analyse --level=6`
+!`composer analyse 2>&1`
 
 If errors are found:
-1. Analyze each error
-2. Fix type hints
-3. Add missing return types
-4. Fix any other issues
-5. Re-run until clean
+1. Analyze each error — understand the root cause, not just the symptom
+2. Fix type hints and return types
+3. Add missing `declare(strict_types=1)` where needed
+4. Fix invalid PHPDoc or array shape annotations
+5. Re-run until output is clean
 
-Common issues to fix:
-- Missing return types on methods
-- Missing parameter types
-- Missing strict_types declarations
-- Unused variables
-- Invalid PHPDoc
-- Mixed type usage
+Never use `@phpstan-ignore` — always fix the actual problem.
+
+Common issues:
+- Missing return types on interface methods
+- Loosely-typed arrays (use `array{key: type}` shapes)
+- Missing `declare(strict_types=1)` at file top
+- Mixed type usage without narrowing
+- Invalid PHPDoc annotations

@@ -1,11 +1,11 @@
 ---
 description: Validates RAG pipeline correctness
 mode: subagent
-model: anthropic/claude-sonnet-4-20250514
+model: zai-coding-plan/glm-5-turbo
 permission:
-  edit: false
+  edit: deny
   bash: allow
-  write: false
+  write: deny
 ---
 
 You are a pipeline validation specialist. Focus on data flow correctness and integration testing.

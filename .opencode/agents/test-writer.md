@@ -1,7 +1,7 @@
 ---
 description: Pest test writing specialist
 mode: subagent
-model: anthropic/claude-haiku-4-20250514
+model: zai-coding-plan/glm-5-turbo
 permission:
   edit: allow
   write: allow
