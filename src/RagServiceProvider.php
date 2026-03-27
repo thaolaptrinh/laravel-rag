@@ -138,6 +138,13 @@ class RagServiceProvider extends ServiceProvider
                 $app->make(RagLogger::class)
             );
         });
+
+        $this->app->singleton('rag', function ($app) {
+            return new RagManager(
+                $app->make(IngestionPipeline::class),
+                $app->make(QueryPipeline::class)
+            );
+        });
     }
 
     public function boot(): void
