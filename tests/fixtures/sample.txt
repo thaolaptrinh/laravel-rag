@@ -1,0 +1,1 @@
+This is a test document about RAG systems. It has multiple sentences. Vector search is powerful.
