@@ -41,6 +41,10 @@ class OpenAILlmDriver implements LlmDriver
 
     public function generateWithSystem(string $system, string $prompt): string
     {
+        if ($this->apiKey === '') {
+            throw new GenerationFailedException('OpenAI API key is required');
+        }
+
         try {
             $response = Http::withToken($this->apiKey)
                 ->acceptJson()

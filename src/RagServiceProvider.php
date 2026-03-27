@@ -35,11 +35,12 @@ class RagServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(DataSource::class, function () {
-            $config = config('rag.data_source', 'text');
+            $config = config('rag.data_source', []);
+            $type = is_array($config) ? ($config['type'] ?? 'text') : (string) $config;
 
-            return match ($config) {
+            return match ($type) {
                 'text' => new TextDataSource,
-                default => throw new \InvalidArgumentException("Unsupported data source: {$config}"),
+                default => throw new \InvalidArgumentException("Unsupported data source: {$type}"),
             };
         });
 
@@ -53,14 +54,14 @@ class RagServiceProvider extends ServiceProvider
 
         $this->app->bind(EmbeddingDriver::class, function () {
             $config = config('rag.embedding', []);
-            $provider = $config['provider'] ?? 'openai';
+            $provider = is_array($config) ? ($config['provider'] ?? 'openai') : 'openai';
 
             return match ($provider) {
                 'openai' => new OpenAIEmbeddingDriver(
-                    apiKey: $config['api_key'] ?? throw new \InvalidArgumentException('OpenAI API key is required'),
-                    model: $config['model'] ?? 'text-embedding-3-small',
-                    dimension: $config['dimension'] ?? 1536,
-                    apiUrl: $config['api_url'] ?? null
+                    apiKey: is_array($config) ? ($config['api_key'] ?? '') : '',
+                    model: is_array($config) ? ($config['model'] ?? 'text-embedding-3-small') : 'text-embedding-3-small',
+                    dimension: is_array($config) ? ($config['dimension'] ?? 1536) : 1536,
+                    apiUrl: is_array($config) ? ($config['api_url'] ?? null) : null
                 ),
                 default => throw new \InvalidArgumentException("Unsupported embedding provider: {$provider}"),
             };
@@ -80,15 +81,15 @@ class RagServiceProvider extends ServiceProvider
 
         $this->app->bind(LlmDriver::class, function () {
             $config = config('rag.llm', []);
-            $provider = $config['provider'] ?? 'openai';
+            $provider = is_array($config) ? ($config['provider'] ?? 'openai') : 'openai';
 
             return match ($provider) {
                 'openai' => new OpenAILlmDriver(
-                    apiKey: $config['api_key'] ?? throw new \InvalidArgumentException('OpenAI API key is required'),
-                    model: $config['model'] ?? 'gpt-4o-mini',
-                    maxTokens: $config['max_tokens'] ?? 4096,
-                    temperature: $config['temperature'] ?? 0.7,
-                    apiUrl: $config['api_url'] ?? null
+                    apiKey: is_array($config) ? ($config['api_key'] ?? '') : '',
+                    model: is_array($config) ? ($config['model'] ?? 'gpt-4o-mini') : 'gpt-4o-mini',
+                    maxTokens: is_array($config) ? ($config['max_tokens'] ?? 4096) : 4096,
+                    temperature: is_array($config) ? ($config['temperature'] ?? 0.7) : 0.7,
+                    apiUrl: is_array($config) ? ($config['api_url'] ?? null) : null
                 ),
                 default => throw new \InvalidArgumentException("Unsupported LLM provider: {$provider}"),
             };

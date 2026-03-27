@@ -43,6 +43,10 @@ class OpenAIEmbeddingDriver implements EmbeddingDriver
             return [];
         }
 
+        if ($this->apiKey === '') {
+            throw new EmbeddingFailedException('OpenAI API key is required');
+        }
+
         try {
             $response = Http::withToken($this->apiKey)
                 ->acceptJson()
