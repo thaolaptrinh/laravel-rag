@@ -88,7 +88,7 @@ This document defines the global system rules for the Laravel RAG package develo
 - **Malformed SSE**: Log warning, skip silently — don't break the stream
 
 ### Rector
-- Sets: `TYPE_DECLARATION`, `CODE_QUALITY`, `EARLY_RETURN`, `DEAD_CODE`
+- Sets: `TYPE_DECLARATIONS`, `CODE_QUALITY`, `EARLY_RETURN`, `DEAD_CODE`
 - Skip: Facade-to-DI rules, migration refactoring rules
 - PHP 8.4: `->withPhpSets(php84: true)`
 
