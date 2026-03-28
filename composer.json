@@ -1,24 +1,33 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "thaolaptrinh/laravel-rag",
+    "description": "Production-grade RAG engine for Laravel — provider-agnostic, HTTP-based, extensible",
     "keywords": [
-        ":vendor_name",
+        "thaolaptrinh",
         "laravel",
-        ":package_slug"
+        "rag",
+        "retrieval-augmented-generation",
+        "pgvector",
+        "llm",
+        "embeddings"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/thaolaptrinh/laravel-rag",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "Thao Nguyen",
+            "email": "hello@thaolaptrinh.com",
             "role": "Developer"
         }
     ],
     "require": {
         "php": "^8.4",
         "spatie/laravel-package-tools": "^1.16",
-        "illuminate/contracts": "^11.0||^12.0"
+        "illuminate/contracts": "^11.0||^12.0",
+        "illuminate/support": "^11.0||^12.0",
+        "illuminate/http": "^11.0||^12.0",
+        "illuminate/database": "^11.0||^12.0",
+        "illuminate/console": "^11.0||^12.0",
+        "illuminate/log": "^11.0||^12.0"
     },
     "require-dev": {
         "laravel/pint": "^1.14",
@@ -31,18 +40,16 @@
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan-deprecation-rules": "^2.0",
         "phpstan/phpstan-phpunit": "^2.0",
-        "spatie/laravel-ray": "^1.35"
+        "phpstan/phpstan-strict-rules": "^2.0"
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src/",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories/"
+            "Thaolaptrinh\\Rag\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests/",
-            "Workbench\\App\\": "workbench/app/"
+            "Thaolaptrinh\\Rag\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -51,7 +58,9 @@
         "analyse": "vendor/bin/phpstan analyse",
         "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/pest --coverage",
-        "format": "vendor/bin/pint"
+        "format": "vendor/bin/pint",
+        "refactor": "vendor/bin/rector process",
+        "refactor-dry": "vendor/bin/rector process --dry-run"
     },
     "config": {
         "sort-packages": true,
@@ -63,11 +72,8 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
-            ],
-            "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
-            }
+                "Thaolaptrinh\\Rag\\RagServiceProvider"
+            ]
         }
     },
     "minimum-stability": "dev",
