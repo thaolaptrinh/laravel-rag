@@ -165,9 +165,9 @@ final class IngestionPipeline
         $lockKey = $this->advisoryLockKey($document->id);
 
         $db->transaction(function () use ($db, $lockKey, $document, $items): void {
-            $acquired = $db->selectOne('SELECT pg_try_advisory_lock(?) AS acquired', [$lockKey]);
+            $result = $db->selectOne('SELECT pg_try_advisory_lock(?) AS acquired', [$lockKey]);
 
-            if (! is_array($acquired) || ! isset($acquired['acquired']) || $acquired['acquired'] !== true) {
+            if (! is_object($result) || ! property_exists($result, 'acquired') || $result->acquired !== true) {
                 throw new \RuntimeException("Failed to acquire advisory lock for document '{$document->id}'");
             }
 
