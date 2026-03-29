@@ -8,18 +8,26 @@ use Illuminate\Contracts\Container\Container;
 use Thaolaptrinh\Rag\Data\Answer;
 use Thaolaptrinh\Rag\Data\Document;
 use Thaolaptrinh\Rag\Data\IngestionResult;
+use Thaolaptrinh\Rag\Jobs\RagIngestJob;
+use Thaolaptrinh\Rag\Testing\FakeRagManager;
 
 final class Rag
 {
     private static ?Container $container = null;
+
+    private static ?FakeRagManager $fake = null;
 
     public static function setContainer(Container $container): void
     {
         self::$container = $container;
     }
 
-    private static function manager(): RagManager
+    private static function manager(): RagManager|FakeRagManager
     {
+        if (self::$fake !== null) {
+            return self::$fake;
+        }
+
         $container = self::$container ?? Container::getInstance();
 
         return $container->make(RagManager::class);
@@ -71,5 +79,62 @@ final class Rag
     public static function truncate(): void
     {
         self::manager()->truncate();
+    }
+
+    public static function ingestQueued(Document $document, ?string $queue = null): void
+    {
+        dispatch(new RagIngestJob(
+            documentId: $document->id,
+            documentContent: $document->content,
+            documentMetadata: $document->metadata,
+            queue: $queue,
+        ));
+    }
+
+    /**
+     * @param  list<Document>  $documents
+     */
+    public static function ingestManyQueued(array $documents, ?string $queue = null): void
+    {
+        foreach ($documents as $document) {
+            dispatch(new RagIngestJob(
+                documentId: $document->id,
+                documentContent: $document->content,
+                documentMetadata: $document->metadata,
+                queue: $queue,
+            ));
+        }
+    }
+
+    public static function fake(): void
+    {
+        self::$fake = new FakeRagManager;
+    }
+
+    public static function assertIngested(string $documentId): void
+    {
+        if (self::$fake === null) {
+            throw new \RuntimeException('Rag::fake() must be called before using assert methods.');
+        }
+
+        self::$fake->assertIngested($documentId);
+    }
+
+    public static function assertQueried(string $question): void
+    {
+        if (self::$fake === null) {
+            throw new \RuntimeException('Rag::fake() must be called before using assert methods.');
+        }
+
+        self::$fake->assertQueried($question);
+    }
+
+    public static function assertDeleted(string $documentId): void
+    {
+        if (self::$fake === null) {
+            throw new \RuntimeException('Rag::fake() must be called before using assert methods.');
+        }
+
+        self::$fake->assertDeleted($documentId);
     }
 }
