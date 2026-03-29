@@ -77,6 +77,10 @@
             ]
         }
     },
+    "support": {
+        "issues": "https://github.com/thaolaptrinh/laravel-rag/issues",
+        "source": "https://github.com/thaolaptrinh/laravel-rag"
+    },
     "minimum-stability": "dev",
     "prefer-stable": true
 }
