@@ -77,8 +77,9 @@ Phase 6: Polish (AGENTS.md update, README, CI, final validation)
 #### 1.6 Configuration
 - Create `config/rag.php` — full structure from ARCHITECTURE.md Section 9
 - Create `database/migrations/2026_03_28_000001_create_rag_documents_table.php` — raw SQL, `VARCHAR(255)` PK
-- Create `database/migrations/2026_03_28_000002_create_rag_chunks_table.php` — raw SQL, vector type, `content_tsv` GENERATED column, constraints
+- Create `database/migrations/2026_03_28_000002_create_rag_chunks_table.php` — raw SQL, `vector(N)` with dimensions from config, `content_tsv` GENERATED column, constraints
 - Create `database/migrations/2026_03_28_000003_create_rag_chunks_hnsw_index.php` — `$withinTransaction = false`, CONCURRENTLY, HNSW + metadata GIN + content_tsv GIN indexes
+- All migrations use `protected $connection = 'rag'` to run on PostgreSQL, not app's default DB
 - Verify: PHPStan passes on config and migration files
 
 #### 1.7 Service provider + static entry point
@@ -282,6 +283,7 @@ composer test       # All tests pass (including pipeline integration)
 - Create `src/Commands/RagQueryCommand.php` — `php artisan rag:query {question} --top-k= --filters=`
 - Create `src/Commands/RagDeleteCommand.php` — `php artisan rag:delete {id}` or `--all`
 - Create `src/Commands/RagInstallCommand.php` — publish config + migrations, create extension, run migrations
+- Create `src/Commands/RagIndexCommand.php` — `php artisan rag:index` creates HNSW index after data ingestion
 - Commands use dependency injection (not Facade)
 - Verify: PHPStan 9, feature tests for each command
 
@@ -366,6 +368,7 @@ composer test       # All tests pass (including feature + command tests)
   - PHP: 8.4
   - Steps: composer install → composer analyse
 - Create `.env.example` — all `RAG_*` env vars from ARCHITECTURE.md Section 9 (with placeholder values)
+- Verify `composer.json` includes Laravel 13 support (`^13.0`)
 - Verify: CI passes on GitHub Actions (requires pgvector service)
 
 #### 6.4 Final validation

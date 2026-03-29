@@ -18,7 +18,7 @@ Production-grade RAG (Retrieval-Augmented Generation) engine for Laravel — pro
 ## Requirements
 
 - PHP 8.4+
-- Laravel 11.0+
+- Laravel 11.0, 12.0, 13.0
 - PostgreSQL 13+ with pgvector extension
 
 ## Installation
@@ -57,6 +57,17 @@ php artisan vendor:publish --provider="Thaolaptrinh\Rag\RagServiceProvider" --ta
 php artisan vendor:publish --provider="Thaolaptrinh\Rag\RagServiceProvider" --tag="rag-migrations"
 php artisan migrate
 ```
+
+### Post-Installation: Create HNSW Index
+
+After ingesting your first documents, create the HNSW vector index for optimal search performance:
+
+```bash
+php artisan rag:ingest "Your document content" --id="doc-1"
+php artisan rag:index
+```
+
+> **Note**: The HNSW index cannot be created on an empty table. Run `rag:index` after your first ingestion.
 
 ### Environment Variables
 
@@ -231,6 +242,9 @@ php artisan rag:delete --all
 # Install (publish config + run migrations)
 php artisan rag:install
 php artisan rag:install --without-migration
+
+# Create HNSW index (after ingesting data)
+php artisan rag:index
 ```
 
 ## Architecture

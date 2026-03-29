@@ -1,6 +1,6 @@
 # Laravel RAG — Architecture & Build Specification
 
-> Version: 1.0.0 | Status: REVIEWED | Date: 2026-03-28
+> Version: 1.1.0 | Status: REVIEWED | Date: 2026-03-29
 
 ---
 
@@ -29,7 +29,7 @@
 
 **Package**: `thaolaptrinh/laravel-rag`
 **Purpose**: Production-grade RAG engine for Laravel — provider-agnostic, HTTP-based, extensible
-**PHP**: 8.4+ | **Laravel**: 11.0+ | **Database**: PostgreSQL with pgvector
+**PHP**: 8.4+ | **Laravel**: 11.0, 12.0, 13.0 | **Database**: PostgreSQL with pgvector
 
 ### What it does
 
@@ -156,6 +156,12 @@ laravel-rag (this package — core engine)
 **Context**: RAG could share the app's default DB connection.
 **Decision**: Separate connection with `RAG_DB_HOST`, `RAG_DB_PORT`, `RAG_DB_DATABASE`, `RAG_DB_USERNAME`, `RAG_DB_PASSWORD`.
 **Rationale**: User can point to same server (convenience) or separate service (Supabase, Neon, Railway). Package does not wrap or modify app DB config. No conflict with app migrations, query timeouts, or connection pooling.
+
+### DD-12: HNSW index creation deferred after first ingest
+
+**Context**: pgvector (versions < 0.9.0) cannot create HNSW indexes on empty tables with untyped vector columns.
+**Decision**: The index migration gracefully skips HNSW creation. A dedicated `rag:index` command creates it after data is ingested.
+**Rationale**: Forces the embedding column to use `vector(N)` with explicit dimensions from config. This ensures HNSW indexes can always be created once data exists. The `rag:index` command provides a clear, user-controlled workflow.
 
 ---
 
@@ -936,7 +942,7 @@ CREATE TABLE rag_chunks (
     document_id VARCHAR(255) NOT NULL REFERENCES rag_documents(id) ON DELETE CASCADE,
     content     TEXT NOT NULL,
     chunk_index INTEGER NOT NULL,
-    embedding   vector NOT NULL,
+    embedding   vector(1536) NOT NULL,
     metadata    JSONB NOT NULL DEFAULT '{}',
     content_tsv TSVECTOR GENERATED ALWAYS AS (to_tsvector('english', content)) STORED,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -945,6 +951,8 @@ CREATE TABLE rag_chunks (
     CONSTRAINT chk_chunk_index CHECK (chunk_index >= 0)
 );
 ```
+
+**Note**: The embedding column uses `vector(N)` where N is the configured `RAG_EMBEDDING_DIMENSIONS` (default 1536). The dimension constraint is required for pgvector to create HNSW indexes. Laravel's `$table->vector('embedding')` creates an unbounded vector type — the migration uses raw SQL `ALTER TABLE` with the dimension from `config('rag.embedding.dimensions')` instead.
 
 | Column | Type | Purpose |
 |--------|------|---------|
@@ -982,6 +990,8 @@ CREATE INDEX CONCURRENTLY idx_chunks_content_tsv_gin
 ```
 
 **Note**: `CREATE INDEX CONCURRENTLY` cannot run in a transaction. Must be in a separate migration with `protected bool $withinTransaction = false;`.
+
+**Important**: HNSW index creation requires at least one row in `rag_chunks` to determine vector dimensions. If the table is empty at migration time, the index migration is skipped gracefully. Run `php artisan rag:index` after ingesting your first documents to create the HNSW index. This is a pgvector limitation (versions < 0.9.0).
 
 ---
 
@@ -1159,6 +1169,8 @@ return [
 Package publishes a stub in `config/rag.php` instructing user to add the `rag` connection to their `config/database.php`. The connection is NOT added automatically — user must configure it.
 
 **Note**: `RAG_DB_SCHEMA` is set via the `search_path` key in the user's `config/database.php` `rag` connection (default: `public`). It is NOT a package config key — the package reads it transparently through Laravel's database connection.
+
+**Important**: All RAG migrations use `protected $connection = 'rag'` to ensure they run on the PostgreSQL connection, not the app's default SQLite/MySQL connection. `DB::statement()` calls inside migrations also use `DB::connection('rag')`.
 
 **Published stub** (shown in `config/rag.php` after publish):
 ```php
@@ -1578,6 +1590,7 @@ src/
 │   ├── RagIngestCommand.php
 │   ├── RagQueryCommand.php
 │   ├── RagDeleteCommand.php
+│   ├── RagIndexCommand.php
 │   └── RagInstallCommand.php
 │
 ├── Events/                        ← Pipeline lifecycle events
@@ -1705,6 +1718,8 @@ services:
 3. Pest unit tests (all pass)
 4. Pest architecture tests (all pass)
 5. Pest integration tests with pgvector service (PgVectorStore real tests only)
+6. Rector process (0 changes)
+7. Pint check (pass)
 ```
 
 ---
