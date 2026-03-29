@@ -13,22 +13,7 @@
     "auto": true
   },
   "permission": {
-    "bash": {
-      "*": "ask",
-      "composer *": "allow",
-      "php *": "allow",
-      "phpstan *": "allow",
-      "pest *": "allow",
-      "vendor/bin/*": "allow",
-      "git status*": "allow",
-      "git diff*": "allow",
-      "git log*": "allow",
-      "git branch*": "allow",
-      "git show*": "allow",
-      "grep *": "allow",
-      "find *": "allow",
-      "ls *": "allow"
-    },
+    "bash": "allow",
     "edit": "allow",
     "read": "allow",
     "grep": "allow",
