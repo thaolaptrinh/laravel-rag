@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Config;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 use Thaolaptrinh\Rag\Commands\RagDeleteCommand;
+use Thaolaptrinh\Rag\Commands\RagIndexCommand;
 use Thaolaptrinh\Rag\Commands\RagIngestCommand;
 use Thaolaptrinh\Rag\Commands\RagInstallCommand;
 use Thaolaptrinh\Rag\Commands\RagQueryCommand;
@@ -62,6 +63,7 @@ class RagServiceProvider extends PackageServiceProvider
             RagQueryCommand::class,
             RagDeleteCommand::class,
             RagInstallCommand::class,
+            RagIndexCommand::class,
         ]);
     }
 
