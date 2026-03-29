@@ -7,7 +7,7 @@ namespace Thaolaptrinh\Rag\Tests\Unit\Services\Prompt;
 use Thaolaptrinh\Rag\Data\QueryResult;
 use Thaolaptrinh\Rag\Services\Prompt\SimplePromptBuilder;
 
-it('estimates tokens for text', function () {
+it('estimates tokens for text', function (): void {
     $builder = new SimplePromptBuilder(0.25);
 
     expect($builder->estimateTokens(''))->toBe(0);
@@ -15,7 +15,7 @@ it('estimates tokens for text', function () {
     expect($builder->estimateTokens(str_repeat('a', 401)))->toBe(101);
 });
 
-it('returns no context message for empty context', function () {
+it('returns no context message for empty context', function (): void {
     $builder = new SimplePromptBuilder;
 
     $prompt = $builder->build([], 'What is RAG?', 1000);
@@ -24,7 +24,7 @@ it('returns no context message for empty context', function () {
     expect($prompt)->toContain('What is RAG?');
 });
 
-it('builds prompt with context and question', function () {
+it('builds prompt with context and question', function (): void {
     $builder = new SimplePromptBuilder;
 
     $context = [
@@ -42,7 +42,7 @@ it('builds prompt with context and question', function () {
     expect($prompt)->toContain('Answer:');
 });
 
-it('builds prompt with custom system message', function () {
+it('builds prompt with custom system message', function (): void {
     $builder = new SimplePromptBuilder;
 
     $prompt = $builder->buildWithSystem(
@@ -58,7 +58,7 @@ it('builds prompt with custom system message', function () {
     expect($prompt)->toContain('Question: Explain X');
 });
 
-it('truncates context to fit token budget', function () {
+it('truncates context to fit token budget', function (): void {
     $builder = new SimplePromptBuilder(0.25);
 
     $chunks = [];
@@ -80,7 +80,7 @@ it('truncates context to fit token budget', function () {
     expect($prompt)->toContain('[0]');
 });
 
-it('includes only chunks that fit within token budget', function () {
+it('includes only chunks that fit within token budget', function (): void {
     $builder = new SimplePromptBuilder(0.25);
 
     $chunks = [

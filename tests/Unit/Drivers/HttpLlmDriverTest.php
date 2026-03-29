@@ -9,7 +9,7 @@ use Thaolaptrinh\Rag\Drivers\Llm\HttpLlmDriver;
 use Thaolaptrinh\Rag\Exceptions\ConfigurationException;
 use Thaolaptrinh\Rag\Exceptions\GenerationFailedException;
 
-it('throws ConfigurationException when api key is empty', function () {
+it('throws ConfigurationException when api key is empty', function (): void {
     new HttpLlmDriver(
         apiKey: '',
         model: 'gpt-4o-mini',
@@ -21,7 +21,7 @@ it('throws ConfigurationException when api key is empty', function () {
     );
 })->throws(ConfigurationException::class);
 
-it('generates response successfully', function () {
+it('generates response successfully', function (): void {
     Http::fake(fn () => Http::response(
         '{"choices":[{"message":{"content":"Hello from LLM"}}]}',
         200,
@@ -42,7 +42,7 @@ it('generates response successfully', function () {
     expect($result)->toBe('Hello from LLM');
 });
 
-it('generate delegates to generateWithSystem with default system prompt', function () {
+it('generate delegates to generateWithSystem with default system prompt', function (): void {
     Http::fake(fn () => Http::response(
         '{"choices":[{"message":{"content":"default system"}}]}',
         200,
@@ -63,7 +63,7 @@ it('generate delegates to generateWithSystem with default system prompt', functi
     expect($result)->toBe('default system');
 });
 
-it('generates with custom system message', function () {
+it('generates with custom system message', function (): void {
     Http::fake(fn () => Http::response(
         '{"choices":[{"message":{"content":"Custom response"}}]}',
         200,
@@ -84,7 +84,7 @@ it('generates with custom system message', function () {
     expect($result)->toBe('Custom response');
 });
 
-it('streams tokens via callback', function () {
+it('streams tokens via callback', function (): void {
     $sseBody = implode("\n", [
         'data: {"choices":[{"delta":{"content":"Hello"}}]}',
         'data: {"choices":[{"delta":{"content":" world"}}]}',
@@ -112,7 +112,7 @@ it('streams tokens via callback', function () {
     expect($tokens)->toBe(['Hello', ' world']);
 });
 
-it('throws on 401 auth failure', function () {
+it('throws on 401 auth failure', function (): void {
     Http::fake(fn () => Http::response('{"error":"Unauthorized"}', 401));
 
     $driver = new HttpLlmDriver(
@@ -128,7 +128,7 @@ it('throws on 401 auth failure', function () {
     $driver->generate('test');
 })->throws(GenerationFailedException::class, 'Authentication failed');
 
-it('throws on invalid response structure', function () {
+it('throws on invalid response structure', function (): void {
     Http::fake(fn () => Http::response('{"unexpected":"data"}', 200));
 
     $driver = new HttpLlmDriver(
@@ -144,7 +144,7 @@ it('throws on invalid response structure', function () {
     $driver->generate('test');
 })->throws(GenerationFailedException::class, 'Invalid response structure');
 
-it('returns configured context window and max output tokens', function () {
+it('returns configured context window and max output tokens', function (): void {
     $driver = new HttpLlmDriver(
         apiKey: 'test-key',
         model: 'gpt-4o-mini',

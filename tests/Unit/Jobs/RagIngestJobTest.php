@@ -6,7 +6,7 @@ namespace Thaolaptrinh\Rag\Tests\Unit\Jobs;
 
 use Thaolaptrinh\Rag\Jobs\RagIngestJob;
 
-it('has correct retry configuration with default timeout', function () {
+it('has correct retry configuration with default timeout', function (): void {
     $job = new RagIngestJob(
         documentId: 'doc-123',
         documentContent: 'Test content',
@@ -21,7 +21,7 @@ it('has correct retry configuration with default timeout', function () {
     expect($retryUntil->getTimestamp())->toBeGreaterThan(time());
 });
 
-it('accepts custom queue name', function () {
+it('accepts custom queue name', function (): void {
     $job = new RagIngestJob(
         documentId: 'doc-123',
         documentContent: 'Test content',
@@ -32,7 +32,7 @@ it('accepts custom queue name', function () {
     expect($job->queue)->toBe('rag-embeddings');
 });
 
-it('stores document properties correctly', function () {
+it('stores document properties correctly', function (): void {
     $job = new RagIngestJob(
         documentId: 'doc-123',
         documentContent: 'Test content',
@@ -46,7 +46,7 @@ it('stores document properties correctly', function () {
     expect($property->getValue($job))->toBe('doc-123');
 });
 
-it('constructs with default null queue', function () {
+it('constructs with default null queue', function (): void {
     $job = new RagIngestJob(
         documentId: 'doc-123',
         documentContent: 'Test content',

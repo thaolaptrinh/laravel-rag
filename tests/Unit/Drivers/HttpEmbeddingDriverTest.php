@@ -9,7 +9,7 @@ use Thaolaptrinh\Rag\Drivers\Embeddings\HttpEmbeddingDriver;
 use Thaolaptrinh\Rag\Exceptions\ConfigurationException;
 use Thaolaptrinh\Rag\Exceptions\EmbeddingFailedException;
 
-it('throws ConfigurationException when api key is empty', function () {
+it('throws ConfigurationException when api key is empty', function (): void {
     new HttpEmbeddingDriver(
         apiKey: '',
         model: 'text-embedding-3-small',
@@ -20,7 +20,7 @@ it('throws ConfigurationException when api key is empty', function () {
     );
 })->throws(ConfigurationException::class, 'Configuration error: Embedding API key must not be empty');
 
-it('embeds single text successfully', function () {
+it('embeds single text successfully', function (): void {
     Http::fake(fn () => Http::response(
         '{"data":[{"embedding":[0.1,0.2,0.3]}]}',
         200,
@@ -40,7 +40,7 @@ it('embeds single text successfully', function () {
     expect($result)->toBe([0.1, 0.2, 0.3]);
 });
 
-it('embeds batch of texts successfully', function () {
+it('embeds batch of texts successfully', function (): void {
     Http::fake(fn () => Http::response(
         '{"data":[{"embedding":[0.1,0.2]},{"embedding":[0.3,0.4]}]}',
         200,
@@ -62,7 +62,7 @@ it('embeds batch of texts successfully', function () {
     expect($result[1])->toBe([0.3, 0.4]);
 });
 
-it('splits large batch into multiple requests', function () {
+it('splits large batch into multiple requests', function (): void {
     $callCount = 0;
 
     Http::fake(function () use (&$callCount) {
@@ -89,7 +89,7 @@ it('splits large batch into multiple requests', function () {
     expect($callCount)->toBe(2);
 });
 
-it('returns empty array for empty input', function () {
+it('returns empty array for empty input', function (): void {
     $driver = new HttpEmbeddingDriver(
         apiKey: 'test-key',
         model: 'text-embedding-3-small',
@@ -102,7 +102,7 @@ it('returns empty array for empty input', function () {
     expect($driver->embedBatch([]))->toBeEmpty();
 });
 
-it('throws EmbeddingFailedException on 401 without retry', function () {
+it('throws EmbeddingFailedException on 401 without retry', function (): void {
     $callCount = 0;
 
     Http::fake(function () use (&$callCount) {
@@ -123,7 +123,7 @@ it('throws EmbeddingFailedException on 401 without retry', function () {
     $driver->embed('test');
 })->throws(EmbeddingFailedException::class, 'Authentication failed');
 
-it('throws EmbeddingFailedException on 403 without retry', function () {
+it('throws EmbeddingFailedException on 403 without retry', function (): void {
     $callCount = 0;
 
     Http::fake(function () use (&$callCount) {
@@ -144,7 +144,7 @@ it('throws EmbeddingFailedException on 403 without retry', function () {
     $driver->embed('test');
 })->throws(EmbeddingFailedException::class, 'Authentication failed');
 
-it('retries on 429 rate limit', function () {
+it('retries on 429 rate limit', function (): void {
     $callCount = 0;
 
     Http::fake(function () use (&$callCount) {
@@ -172,7 +172,7 @@ it('retries on 429 rate limit', function () {
     expect($callCount)->toBe(2);
 });
 
-it('retries on 500 server error', function () {
+it('retries on 500 server error', function (): void {
     $callCount = 0;
 
     Http::fake(function () use (&$callCount) {
@@ -200,7 +200,7 @@ it('retries on 500 server error', function () {
     expect($callCount)->toBe(2);
 });
 
-it('throws after exhausting 429 retries', function () {
+it('throws after exhausting 429 retries', function (): void {
     Http::fake(fn () => Http::response('{"error":"Rate limited"}', 429));
 
     $driver = new HttpEmbeddingDriver(
@@ -215,7 +215,7 @@ it('throws after exhausting 429 retries', function () {
     $driver->embed('test');
 })->throws(EmbeddingFailedException::class);
 
-it('throws on invalid response structure', function () {
+it('throws on invalid response structure', function (): void {
     Http::fake(fn () => Http::response('{"unexpected":"structure"}', 200));
 
     $driver = new HttpEmbeddingDriver(
@@ -230,7 +230,7 @@ it('throws on invalid response structure', function () {
     $driver->embed('test');
 })->throws(EmbeddingFailedException::class, 'Invalid response structure');
 
-it('throws on invalid JSON response', function () {
+it('throws on invalid JSON response', function (): void {
     Http::fake(fn () => Http::response('not-json', 200));
 
     $driver = new HttpEmbeddingDriver(
@@ -245,7 +245,7 @@ it('throws on invalid JSON response', function () {
     $driver->embed('test');
 })->throws(EmbeddingFailedException::class, 'Invalid JSON response');
 
-it('returns configured dimensions', function () {
+it('returns configured dimensions', function (): void {
     $driver = new HttpEmbeddingDriver(
         apiKey: 'test-key',
         model: 'text-embedding-3-small',

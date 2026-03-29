@@ -13,7 +13,7 @@ use Thaolaptrinh\Rag\Exceptions\RetrievalFailedException;
 use Thaolaptrinh\Rag\Exceptions\StorageFailedException;
 use Thaolaptrinh\Rag\Services\Retrieving\SimilarityRetriever;
 
-it('retrieves relevant chunks by embedding query and searching store', function () {
+it('retrieves relevant chunks by embedding query and searching store', function (): void {
     $embedder = M::mock(EmbeddingDriver::class);
     $store = M::mock(VectorStore::class);
 
@@ -35,7 +35,7 @@ it('retrieves relevant chunks by embedding query and searching store', function 
     expect($results[0]->score)->toBe(0.95);
 });
 
-it('passes filters and minScore to store search', function () {
+it('passes filters and minScore to store search', function (): void {
     $embedder = M::mock(EmbeddingDriver::class);
     $store = M::mock(VectorStore::class);
 
@@ -53,7 +53,7 @@ it('passes filters and minScore to store search', function () {
     expect($results)->toBeEmpty();
 });
 
-it('wraps EmbeddingFailedException in RetrievalFailedException', function () {
+it('wraps EmbeddingFailedException in RetrievalFailedException', function (): void {
     $embedder = M::mock(EmbeddingDriver::class);
     $store = M::mock(VectorStore::class);
 
@@ -65,7 +65,7 @@ it('wraps EmbeddingFailedException in RetrievalFailedException', function () {
     $retriever->retrieve('test', 5);
 })->throws(RetrievalFailedException::class, 'Failed to embed query');
 
-it('wraps StorageFailedException in RetrievalFailedException', function () {
+it('wraps StorageFailedException in RetrievalFailedException', function (): void {
     $embedder = M::mock(EmbeddingDriver::class);
     $store = M::mock(VectorStore::class);
 
