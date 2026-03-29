@@ -21,7 +21,7 @@ final class RagIngestJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public int $tries;
+    public int $tries = 3;
 
     public int $timeout;
 
@@ -33,7 +33,6 @@ final class RagIngestJob implements ShouldQueue
         ?string $queue = null,
     ) {
         $this->onQueue($queue);
-        $this->tries = 3;
         /** @var int<1, max> $timeout */
         $timeout = config('rag.ingestion.pipeline_timeout', 600);
         $this->timeout = $timeout;

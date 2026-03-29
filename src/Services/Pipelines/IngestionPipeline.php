@@ -12,6 +12,7 @@ use Thaolaptrinh\Rag\Contracts\Chunker;
 use Thaolaptrinh\Rag\Contracts\ContextEnricher;
 use Thaolaptrinh\Rag\Contracts\EmbeddingDriver;
 use Thaolaptrinh\Rag\Contracts\VectorStore;
+use Thaolaptrinh\Rag\Data\Chunk;
 use Thaolaptrinh\Rag\Data\Document;
 use Thaolaptrinh\Rag\Data\IngestionResult;
 use Thaolaptrinh\Rag\Events\DocumentIngested;
@@ -53,7 +54,7 @@ final class IngestionPipeline
 
         $this->validateDocumentSizes(array_values($documents));
 
-        $ids = array_map(fn (Document $d) => $d->id, $documents);
+        $ids = array_map(fn (Document $d): string => $d->id, $documents);
         $existing = $this->vectorStore->getDocumentsByIds(array_values($ids));
 
         $existingByHash = [];
@@ -80,11 +81,11 @@ final class IngestionPipeline
         $subBatches = array_chunk($toProcess, max(1, $this->subBatchSize));
 
         foreach ($subBatches as $subBatch) {
-            $this->checkPipelineTimeout($startTime, $ingested, $skipped, $errors, $traceId);
+            $this->checkPipelineTimeout($startTime, $ingested, $skipped, $errors);
 
             foreach ($subBatch as $doc) {
                 try {
-                    $chunkCount = $this->processDocument($doc, $traceId);
+                    $chunkCount = $this->processDocument($doc);
                     $ingested++;
                     event(new DocumentIngested($doc->id, $chunkCount, $traceId, CarbonImmutable::now()));
                     $this->logger->ingestionDocumentComplete($traceId, $doc->id, $chunkCount);
@@ -119,7 +120,7 @@ final class IngestionPipeline
         }
     }
 
-    private function checkPipelineTimeout(float $startTime, int $ingested, int $skipped, int $errors, string $traceId): void
+    private function checkPipelineTimeout(float $startTime, int $ingested, int $skipped, int $errors): void
     {
         $elapsed = microtime(true) - $startTime;
 
@@ -130,7 +131,7 @@ final class IngestionPipeline
         }
     }
 
-    private function processDocument(Document $document, string $traceId): int
+    private function processDocument(Document $document): int
     {
         $chunks = $this->chunker->split($document);
 
@@ -138,9 +139,9 @@ final class IngestionPipeline
             return 0;
         }
 
-        if ($this->contextEnricher !== null) {
+        if ($this->contextEnricher instanceof ContextEnricher) {
             $chunks = array_map(
-                fn ($chunk) => $this->contextEnricher->enrich(
+                fn (Chunk $chunk): Chunk => $this->contextEnricher->enrich(
                     $chunk,
                     $document->content,
                     $document->metadata,
@@ -149,7 +150,7 @@ final class IngestionPipeline
             );
         }
 
-        $texts = array_map(fn ($chunk) => $chunk->content, $chunks);
+        $texts = array_map(fn ($chunk): string => $chunk->content, $chunks);
         $embeddings = $this->embeddingDriver->embedBatch($texts);
 
         $items = [];
@@ -188,7 +189,7 @@ final class IngestionPipeline
                     ->where('document_id', $document->id)
                     ->delete();
 
-                $rows = array_map(fn ($item) => [
+                $rows = array_map(fn (array $item): array => [
                     'document_id' => $item['chunk']->documentId,
                     'content' => $item['chunk']->content,
                     'chunk_index' => $item['chunk']->index,

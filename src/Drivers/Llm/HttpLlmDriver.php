@@ -12,10 +12,13 @@ use Thaolaptrinh\Rag\Exceptions\GenerationFailedException;
 
 final class HttpLlmDriver implements LlmDriver
 {
+    /** @var int<1, max> */
     private readonly int $maxOutputTokens;
 
+    /** @var int<1, max> */
     private readonly int $contextWindow;
 
+    /** @var int<1, max> */
     private readonly int $timeout;
 
     public function __construct(
@@ -33,6 +36,10 @@ final class HttpLlmDriver implements LlmDriver
         if ($apiKey === '') {
             throw ConfigurationException::create('LLM API key must not be empty');
         }
+
+        assert($maxOutputTokens >= 1);
+        assert($contextWindow >= 1);
+        assert($timeout >= 1);
 
         $this->maxOutputTokens = $maxOutputTokens;
         $this->contextWindow = $contextWindow;
@@ -77,7 +84,6 @@ final class HttpLlmDriver implements LlmDriver
      */
     public function getContextWindow(): int
     {
-        /** @var int<1, max> */
         return $this->contextWindow;
     }
 
@@ -88,7 +94,6 @@ final class HttpLlmDriver implements LlmDriver
      */
     public function getMaxOutputTokens(): int
     {
-        /** @var int<1, max> */
         return $this->maxOutputTokens;
     }
 

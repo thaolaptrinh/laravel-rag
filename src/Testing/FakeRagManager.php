@@ -60,10 +60,7 @@ final class FakeRagManager
         );
     }
 
-    /**
-     * @param  array<string, mixed>  $options
-     */
-    public function query(string $question, array $options = []): Answer
+    public function query(string $question): Answer
     {
         $this->queries[] = $question;
 
@@ -74,11 +71,7 @@ final class FakeRagManager
         );
     }
 
-    /**
-     * @param  callable(string): void  $callback
-     * @param  array<string, mixed>  $options
-     */
-    public function queryStream(string $question, callable $callback, array $options = []): Answer
+    public function queryStream(string $question): Answer
     {
         $this->queries[] = $question;
 

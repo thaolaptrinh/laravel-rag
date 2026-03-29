@@ -69,7 +69,7 @@ class RagServiceProvider extends PackageServiceProvider
     {
         $this->app->singleton(RagLogger::class, function (): RagLogger {
             return new RagLogger(
-                channel: self::configString('rag.logging.channel', 'stack'),
+                channel: $this->configString('rag.logging.channel', 'stack'),
             );
         });
     }
@@ -78,33 +78,33 @@ class RagServiceProvider extends PackageServiceProvider
     {
         $this->app->singleton(EmbeddingDriver::class, function (): HttpEmbeddingDriver {
             return new HttpEmbeddingDriver(
-                apiKey: self::configString('rag.embedding.api_key', ''),
-                model: self::configString('rag.embedding.model', 'text-embedding-3-small'),
-                dimensions: self::configPositiveInt('rag.embedding.dimensions', 1536),
-                batchSize: self::configPositiveInt('rag.embedding.batch_size', 100),
-                timeout: self::configPositiveInt('rag.embedding.timeout', 120),
-                apiUrl: self::configString('rag.embedding.api_url', 'https://api.openai.com/v1/embeddings'),
+                apiKey: $this->configString('rag.embedding.api_key', ''),
+                model: $this->configString('rag.embedding.model', 'text-embedding-3-small'),
+                dimensions: $this->configPositiveInt('rag.embedding.dimensions', 1536),
+                batchSize: $this->configPositiveInt('rag.embedding.batch_size', 100),
+                timeout: $this->configPositiveInt('rag.embedding.timeout', 120),
+                apiUrl: $this->configString('rag.embedding.api_url', 'https://api.openai.com/v1/embeddings'),
             );
         });
 
         $this->app->singleton(LlmDriver::class, function (): HttpLlmDriver {
             return new HttpLlmDriver(
-                apiKey: self::configString('rag.llm.api_key', ''),
-                model: self::configString('rag.llm.model', 'gpt-4o-mini'),
-                maxOutputTokens: self::configPositiveInt('rag.llm.max_output_tokens', 4096),
-                contextWindow: self::configPositiveInt('rag.llm.context_window', 128000),
-                temperature: self::configFloat('rag.llm.temperature', 0.7),
-                timeout: self::configPositiveInt('rag.llm.timeout', 120),
-                apiUrl: self::configString('rag.llm.api_url', 'https://api.openai.com/v1/chat/completions'),
+                apiKey: $this->configString('rag.llm.api_key', ''),
+                model: $this->configString('rag.llm.model', 'gpt-4o-mini'),
+                maxOutputTokens: $this->configPositiveInt('rag.llm.max_output_tokens', 4096),
+                contextWindow: $this->configPositiveInt('rag.llm.context_window', 128000),
+                temperature: $this->configFloat('rag.llm.temperature', 0.7),
+                timeout: $this->configPositiveInt('rag.llm.timeout', 120),
+                apiUrl: $this->configString('rag.llm.api_url', 'https://api.openai.com/v1/chat/completions'),
             );
         });
 
         $this->app->singleton(VectorStore::class, function (): PgVectorStore {
             return new PgVectorStore(
-                connection: self::configString('rag.database.connection', 'rag'),
-                documentsTable: self::configString('rag.database.documents_table', 'rag_documents'),
-                chunksTable: self::configString('rag.database.chunks_table', 'rag_chunks'),
-                hnswEfSearch: self::configPositiveInt('rag.retrieval.hnsw_ef_search', 100),
+                connection: $this->configString('rag.database.connection', 'rag'),
+                documentsTable: $this->configString('rag.database.documents_table', 'rag_documents'),
+                chunksTable: $this->configString('rag.database.chunks_table', 'rag_chunks'),
+                hnswEfSearch: $this->configPositiveInt('rag.retrieval.hnsw_ef_search', 100),
             );
         });
 
@@ -112,24 +112,24 @@ class RagServiceProvider extends PackageServiceProvider
             return new SimilarityRetriever(
                 embedder: $app->make(EmbeddingDriver::class),
                 store: $app->make(VectorStore::class),
-                minScore: self::configFloat('rag.retrieval.min_score', 0.0),
+                minScore: $this->configFloat('rag.retrieval.min_score', 0.0),
             );
         });
 
         $this->app->singleton(PromptBuilder::class, function (): SimplePromptBuilder {
             return new SimplePromptBuilder(
-                tokensPerChar: self::configFloat('rag.prompt.tokens_per_char', 0.25),
+                tokensPerChar: $this->configFloat('rag.prompt.tokens_per_char', 0.25),
             );
         });
 
         $this->app->bind(Chunker::class, function (): FixedSizeChunker {
             return new FixedSizeChunker(
-                chunkSize: self::configPositiveInt('rag.chunking.chunk_size', 1000),
-                overlap: self::configNonNegativeInt('rag.chunking.overlap', 200),
+                chunkSize: $this->configPositiveInt('rag.chunking.chunk_size', 1000),
+                overlap: $this->configNonNegativeInt('rag.chunking.overlap', 200),
             );
         });
 
-        if (self::configBool('rag.contextual.enabled')) {
+        if ($this->configBool('rag.contextual.enabled')) {
             $this->app->singleton(ContextEnricher::class, function ($app): LlmContextEnricher {
                 return new LlmContextEnricher(
                     llm: $app->make(LlmDriver::class),
@@ -147,10 +147,10 @@ class RagServiceProvider extends PackageServiceProvider
                 vectorStore: $app->make(VectorStore::class),
                 logger: $app->make(RagLogger::class),
                 contextEnricher: $app->bound(ContextEnricher::class) ? $app->make(ContextEnricher::class) : null,
-                maxContentLength: self::configPositiveInt('rag.document.max_content_length', 100_000),
-                subBatchSize: self::configPositiveInt('rag.ingestion.sub_batch_size', 10),
-                pipelineTimeout: self::configPositiveInt('rag.ingestion.pipeline_timeout', 600),
-                connection: self::configString('rag.database.connection', 'rag'),
+                maxContentLength: $this->configPositiveInt('rag.document.max_content_length', 100_000),
+                subBatchSize: $this->configPositiveInt('rag.ingestion.sub_batch_size', 10),
+                pipelineTimeout: $this->configPositiveInt('rag.ingestion.pipeline_timeout', 600),
+                connection: $this->configString('rag.database.connection', 'rag'),
             );
         });
 
@@ -177,7 +177,7 @@ class RagServiceProvider extends PackageServiceProvider
         $this->app->singleton('rag', RagManager::class);
     }
 
-    private static function configString(string $key, string $default): string
+    private function configString(string $key, string $default): string
     {
         $value = Config::get($key, $default);
 
@@ -188,7 +188,7 @@ class RagServiceProvider extends PackageServiceProvider
      * @param  int<1, max>  $default
      * @return int<1, max>
      */
-    private static function configPositiveInt(string $key, int $default): int
+    private function configPositiveInt(string $key, int $default): int
     {
         $value = Config::get($key, $default);
 
@@ -203,7 +203,7 @@ class RagServiceProvider extends PackageServiceProvider
      * @param  int<0, max>  $default
      * @return int<0, max>
      */
-    private static function configNonNegativeInt(string $key, int $default): int
+    private function configNonNegativeInt(string $key, int $default): int
     {
         $value = Config::get($key, $default);
 
@@ -214,14 +214,14 @@ class RagServiceProvider extends PackageServiceProvider
         return $default;
     }
 
-    private static function configFloat(string $key, float $default): float
+    private function configFloat(string $key, float $default): float
     {
         $value = Config::get($key, $default);
 
         return is_float($value) || is_int($value) ? (float) $value : $default;
     }
 
-    private static function configBool(string $key): bool
+    private function configBool(string $key): bool
     {
         $value = Config::get($key, false);
 

@@ -24,7 +24,7 @@ final class Rag
 
     private static function manager(): RagManager|FakeRagManager
     {
-        if (self::$fake !== null) {
+        if (self::$fake instanceof FakeRagManager) {
             return self::$fake;
         }
 
@@ -113,7 +113,7 @@ final class Rag
 
     public static function assertIngested(string $documentId): void
     {
-        if (self::$fake === null) {
+        if (! self::$fake instanceof FakeRagManager) {
             throw new \RuntimeException('Rag::fake() must be called before using assert methods.');
         }
 
@@ -122,7 +122,7 @@ final class Rag
 
     public static function assertQueried(string $question): void
     {
-        if (self::$fake === null) {
+        if (! self::$fake instanceof FakeRagManager) {
             throw new \RuntimeException('Rag::fake() must be called before using assert methods.');
         }
 
@@ -131,7 +131,7 @@ final class Rag
 
     public static function assertDeleted(string $documentId): void
     {
-        if (self::$fake === null) {
+        if (! self::$fake instanceof FakeRagManager) {
             throw new \RuntimeException('Rag::fake() must be called before using assert methods.');
         }
 
