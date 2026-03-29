@@ -18,7 +18,7 @@ final class RagDeleteCommand extends Command
 
     public function handle(): int
     {
-        $all = (bool) $this->option('all');
+        $all = $this->option('all');
 
         if ($all) {
             Rag::truncate();

@@ -7,6 +7,10 @@ namespace Thaolaptrinh\Rag;
 use Illuminate\Support\Facades\Config;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Thaolaptrinh\Rag\Commands\RagDeleteCommand;
+use Thaolaptrinh\Rag\Commands\RagIngestCommand;
+use Thaolaptrinh\Rag\Commands\RagInstallCommand;
+use Thaolaptrinh\Rag\Commands\RagQueryCommand;
 use Thaolaptrinh\Rag\Contracts\Chunker;
 use Thaolaptrinh\Rag\Contracts\ContextEnricher;
 use Thaolaptrinh\Rag\Contracts\EmbeddingDriver;
@@ -47,6 +51,18 @@ class RagServiceProvider extends PackageServiceProvider
         $this->registerManager();
 
         Rag::setContainer($this->app);
+    }
+
+    public function boot(): void
+    {
+        parent::boot();
+
+        $this->commands([
+            RagIngestCommand::class,
+            RagQueryCommand::class,
+            RagDeleteCommand::class,
+            RagInstallCommand::class,
+        ]);
     }
 
     private function registerLogger(): void

@@ -20,7 +20,7 @@ final class RagInstallCommand extends Command
 
         $this->publishConfig();
 
-        $withoutMigration = (bool) $this->option('without-migration');
+        $withoutMigration = $this->option('without-migration');
 
         if (! $withoutMigration) {
             $this->createVectorExtension();

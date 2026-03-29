@@ -91,12 +91,21 @@ final class FakeRagManager
 
     public function delete(string $documentId): bool
     {
-        $count = $this->store->deleteByDocumentId($documentId);
+        $documents = $this->store->getDocuments();
 
-        if ($count === 0) {
+        $found = false;
+        foreach ($documents as $doc) {
+            if ($doc->id === $documentId) {
+                $found = true;
+                break;
+            }
+        }
+
+        if (! $found) {
             throw DocumentNotFoundException::create($documentId);
         }
 
+        $this->store->deleteByDocumentId($documentId);
         $this->deleted[] = $documentId;
 
         return true;
