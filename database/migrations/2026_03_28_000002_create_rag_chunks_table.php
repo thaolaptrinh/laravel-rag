@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    protected $connection = 'rag';
+
     public function up(): void
     {
-        Schema::create('rag_chunks', function (Blueprint $table): void {
+        Schema::connection('rag')->create('rag_chunks', function (Blueprint $table): void {
             $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
             $table->string('document_id');
             $table->text('content');
@@ -29,12 +31,12 @@ return new class extends Migration
             $table->unique(['document_id', 'chunk_index'], 'uq_chunks_document_chunk');
         });
 
-        DB::statement("ALTER TABLE rag_chunks ADD COLUMN content_tsv TSVECTOR GENERATED ALWAYS AS (to_tsvector('english', content)) STORED");
-        DB::statement('ALTER TABLE rag_chunks ADD CONSTRAINT chk_chunk_index CHECK (chunk_index >= 0)');
+        DB::connection('rag')->statement("ALTER TABLE rag_chunks ADD COLUMN content_tsv TSVECTOR GENERATED ALWAYS AS (to_tsvector('english', content)) STORED");
+        DB::connection('rag')->statement('ALTER TABLE rag_chunks ADD CONSTRAINT chk_chunk_index CHECK (chunk_index >= 0)');
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('rag_chunks');
+        Schema::connection('rag')->dropIfExists('rag_chunks');
     }
 };

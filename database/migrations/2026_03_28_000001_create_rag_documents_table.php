@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    protected $connection = 'rag';
+
     public function up(): void
     {
-        DB::statement('CREATE EXTENSION IF NOT EXISTS vector');
+        DB::connection('rag')->statement('CREATE EXTENSION IF NOT EXISTS vector');
 
         Schema::create('rag_documents', function (Blueprint $table): void {
             $table->string('id')->primary();
