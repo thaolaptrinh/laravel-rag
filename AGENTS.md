@@ -108,6 +108,8 @@ Follow the 6-phase order in `docs/IMPLEMENTATION_PLAN.md`:
 - **Never skip**: `composer analyse` after each phase — 0 errors
 - **Never skip**: `composer test` — all tests pass
 - **Never skip**: Architecture validation — no provider lock-in
+- **Never skip**: Run `vendor/bin/rector process` before committing — apply all style fixes
+- **Never skip**: Run `vendor/bin/pint --test` before committing — fix any style issues
 
 ### Domain Model Rules
 - `Document.id` is user-provided (auto-UUID if null) — becomes `rag_documents` primary key directly
